@@ -1,3 +1,5 @@
+#include <algorithm>
+#include <chrono>
 #include <fstream>
 #include <iostream>
 #include <string>
@@ -54,28 +56,23 @@ void task2() {
         int shift = line_length - 1 - i;
         uint bit = (num & (1 << shift)) >> shift;
         oxygen_bit_counts[i] += bit;
-        if (bit == 1) {
-        } else {
-        }
       }
 
       uint most_common;
-      if (oxygen_bit_counts[i] >= (oxygen_nums.size()+1)/2) {
+      if (oxygen_bit_counts[i] >= (oxygen_nums.size() + 1) / 2) {
         most_common = 1;
       } else {
         most_common = 0;
       }
 
-
-      for (int j = 0; j < oxygen_nums.size(); j++) {
-        uint num = oxygen_nums[j];
-        int shift = line_length - 1 - i;
-        uint bit = (num & (1 << shift)) >> shift;
-        if (bit != most_common) {
-          oxygen_nums.erase(oxygen_nums.begin() + j);
-          j--;
-        }
-      }
+      oxygen_nums.erase(std::remove_if(std::begin(oxygen_nums),
+                                       std::end(oxygen_nums),
+                                       [i, line_length, most_common](uint num) {
+                                         int shift = line_length - 1 - i;
+                                         uint bit = (num >> shift) & 1;
+                                         return bit != most_common;
+                                       }),
+                        std::end(oxygen_nums));
     }
 
     // CO2 scrubber rating
@@ -87,32 +84,40 @@ void task2() {
       }
 
       uint least_common;
-      if (co2_bit_counts[i] >= (co2_nums.size()+1)/2) {
+      if (co2_bit_counts[i] >= (co2_nums.size() + 1) / 2) {
         least_common = 0;
       } else {
         least_common = 1;
       }
 
-
-      for (int j = 0; j < co2_nums.size(); j++) {
-        uint num = co2_nums[j];
-        int shift = line_length - 1 - i;
-        uint bit = (num & (1 << shift)) >> shift;
-        if (bit != least_common) {
-          co2_nums.erase(co2_nums.begin() + j);
-          j--;
-        }
-      }
+      co2_nums.erase(std::remove_if(std::begin(co2_nums), std::end(co2_nums),
+                                    [i, line_length, least_common](uint num) {
+                                      int shift = line_length - 1 - i;
+                                      uint bit = (num >> shift) & 1;
+                                      return bit != least_common;
+                                    }),
+                     std::end(co2_nums));
     }
   }
 
   auto oxygen = oxygen_nums[0];
   auto co2 = co2_nums[0];
 
-  std::cout << oxygen*co2 << std::endl;
+  std::cout << oxygen * co2 << std::endl;
 }
 
 int main() {
+  using std::chrono::duration;
+  using std::chrono::duration_cast;
+  using std::chrono::high_resolution_clock;
+  using std::chrono::milliseconds;
+
+  auto t1 = high_resolution_clock::now();
   task1();
   task2();
+  auto t2 = high_resolution_clock::now();
+
+  duration<double, std::milli> ms_double = t2 - t1;
+
+  std::cout << ms_double.count() << "ms\n";
 }
