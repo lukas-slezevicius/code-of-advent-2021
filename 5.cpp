@@ -29,7 +29,8 @@ public:
 
   Line(Point p1, Point p2) : p1(p1), p2(p2) {}
 
-  std::vector<Point> range() const {
+  // Only works for lines with grad that's in (0, -1, 1, inf)
+  std::vector<Point> point_range() const {
     std::vector<Point> v;
     if (p1.x == p2.x) {
       int min_y = std::min(p1.y, p2.y);
@@ -79,15 +80,10 @@ std::vector<Line> read_input(std::string file_name) {
   return v;
 }
 
-int compute_points(const std::vector<Line> &lines, bool skip_diagonals) {
+int count_overlapping_points(const std::vector<Line> &lines) {
   std::map<Point, int> point_counts;
   for (const auto &line : lines) {
-    if (skip_diagonals) {
-      if (line.p1.x != line.p2.x && line.p1.y != line.p2.y) {
-        continue;
-      }
-    }
-    auto v = line.range();
+    auto v = line.point_range();
     for (Point p : v) {
       if (point_counts.find(p) == point_counts.end()) {
         point_counts[p] = 0;
@@ -104,14 +100,20 @@ int compute_points(const std::vector<Line> &lines, bool skip_diagonals) {
   return final_count;
 }
 
-void task1(const std::vector<Line> &lines) {
-  auto final_count = compute_points(lines, true);
-  std::cout << final_count << std::endl;
+void task1(std::vector<Line> lines) {
+  // Remove diagonal lines
+  auto remove_it = std::remove_if(lines.begin(), lines.end(), [](Line line) {
+    return line.p1.x != line.p2.x && line.p1.y != line.p2.y;
+  });
+  lines.erase(remove_it, lines.end());
+
+  auto count = count_overlapping_points(lines);
+  std::cout << count << std::endl;
 }
 
 void task2(const std::vector<Line> &lines) {
-  auto final_count = compute_points(lines, false);
-  std::cout << final_count << std::endl;
+  auto count = count_overlapping_points(lines);
+  std::cout << count << std::endl;
 }
 
 int main() {
