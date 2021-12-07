@@ -1,10 +1,10 @@
+#include <cmath>
 #include <fstream>
 #include <iostream>
-#include <string>
-#include <map>
 #include <limits>
+#include <map>
+#include <string>
 #include <vector>
-#include <cmath>
 
 void task1(const std::vector<int> &input) {
   std::map<int, int> pos_counts;
@@ -62,7 +62,7 @@ void task2(const std::vector<int> &input) {
     int fuel_used = 0;
     for (auto n : input) {
       int diff = std::abs(pos - n);
-      fuel_used += ((diff + 1)*diff)/2;
+      fuel_used += ((diff + 1) * diff) / 2;
     }
     if (fuel_used < min_fuel_used) {
       min_fuel_used = fuel_used;
